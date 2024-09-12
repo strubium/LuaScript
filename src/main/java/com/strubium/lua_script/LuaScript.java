@@ -1,10 +1,9 @@
 package com.strubium.lua_script;
 
-import com.example.lua_script.Tags;
+import com.strubium.lua_script.Tags;
 import com.strubium.lua_script.lua.LuaEngine;
 import com.strubium.lua_script.lua.LuaManager;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +33,6 @@ public class LuaScript {
         // Get the mod configuration directory
         File configDir = event.getModConfigurationDirectory();
         modConfigDir = String.valueOf(event.getModConfigurationDirectory());
-        LOGGER.info("Mod Config: " + modConfigDir);
 
         // Define the folder and file path
         File luaDir = new File(configDir, "lua");
@@ -44,9 +42,9 @@ public class LuaScript {
         if (!luaDir.exists()) {
             boolean dirsCreated = luaDir.mkdirs();  // mkdirs() creates the directory and any necessary parent directories
             if (dirsCreated) {
-                System.out.println("Directory 'lua/' created successfully.");
+                LOGGER.info("Directory 'lua/' created successfully.");
             } else {
-                System.out.println("Failed to create directory 'lua/'.");
+                LOGGER.info("Failed to create directory 'lua/'.");
             }
         }
 
@@ -54,15 +52,15 @@ public class LuaScript {
         if (!file.exists()) {
             try {
                 if (file.createNewFile()) {
-                    System.out.println("File 'init.lua' created successfully at: " + file.getAbsolutePath());
+                    LOGGER.info("File 'init.lua' created successfully at: " + file.getAbsolutePath());
                 } else {
-                    System.out.println("Failed to create file 'init.lua'.");
+                    LOGGER.info("Failed to create file 'init.lua'.");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("File 'init.lua' already exists at: " + file.getAbsolutePath());
+            LOGGER.info("File 'init.lua' already exists at: " + file.getAbsolutePath());
         }
     }
 

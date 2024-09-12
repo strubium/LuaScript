@@ -1,6 +1,6 @@
 package com.strubium.lua_script.lua;
 
-import com.example.lua_script.Tags;
+import com.strubium.lua_script.Tags;
 import com.strubium.lua_script.LuaScript;
 import com.strubium.lua_script.util.FileUtils;
 import org.luaj.vm2.*;
