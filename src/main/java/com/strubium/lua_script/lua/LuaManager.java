@@ -3,6 +3,15 @@ package com.strubium.lua_script.lua;
 import com.strubium.lua_script.Tags;
 import com.strubium.lua_script.LuaScript;
 import com.strubium.lua_script.util.FileUtils;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.luaj.vm2.*;
 
 import java.io.File;
@@ -21,6 +30,7 @@ public class LuaManager {
     public LuaManager(Globals globals) {
         this.globals = globals;
         registerFunctions();
+        registerMinecraftFunctions();
     }
 
     /**
@@ -201,6 +211,49 @@ public class LuaManager {
 
         // Add more functions as needed
     }
+    private void registerMinecraftFunctions(){
+        globals.set("getBlockAt", new LuaFunction() {
+            @Override
+            public LuaValue call(LuaValue x, LuaValue y, LuaValue z) {
+                World world = Minecraft.getMinecraft().world;
+                BlockPos pos = new BlockPos(x.toint(), y.toint(), z.toint());
+                IBlockState state = world.getBlockState(pos);
+                return LuaValue.valueOf(state.getBlock().getRegistryName().toString());
+            }
+        });
+
+        globals.set("getPlayerPosition", new LuaFunction() {
+            @Override
+            public LuaValue call() {
+                EntityPlayer player = Minecraft.getMinecraft().player;
+                if (player != null) {
+                    return LuaValue.listOf(new LuaValue[] {
+                            LuaValue.valueOf(player.posX),
+                            LuaValue.valueOf(player.posY),
+                            LuaValue.valueOf(player.posZ)
+                    });
+                }
+                return LuaValue.NIL;
+            }
+        });
+
+        globals.set("teleportPlayer", new LuaFunction() {
+            @Override
+            public LuaValue call(LuaValue x, LuaValue y, LuaValue z) {
+                EntityPlayer player = Minecraft.getMinecraft().player;
+                if (player != null) {
+                    player.setPositionAndUpdate(x.todouble(), y.todouble(), z.todouble());
+                    return LuaValue.TRUE;
+                }
+                return LuaValue.FALSE;
+            }
+        });
+
+
+
+    }
+
+
 
     /**
      * Loads and executes a Lua script from the specified path.

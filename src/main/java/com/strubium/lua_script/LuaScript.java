@@ -29,31 +29,13 @@ public class LuaScript {
      */
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        LOGGER.info("Hello From {}!", Tags.MOD_NAME);
-
         // Get the mod configuration directory
         configDir = event.getModConfigurationDirectory();
         modConfigDir = String.valueOf(event.getModConfigurationDirectory());
 
-        Config.loadFolder();
+        Config.loadLuaFolder();
+        Config.loadInit();
 
-        // Define the folder and file path
-        File file = new File(Config.luaDir, "init.lua");
-
-        // Check if the file exists, if not, create it
-        if (!file.exists()) {
-            try {
-                if (file.createNewFile()) {
-                    LOGGER.info("File 'init.lua' created successfully at: " + file.getAbsolutePath());
-                } else {
-                    LOGGER.info("Failed to create file 'init.lua'.");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            LOGGER.info("File 'init.lua' already exists at: " + file.getAbsolutePath());
-        }
     }
 
     @Mod.EventHandler
