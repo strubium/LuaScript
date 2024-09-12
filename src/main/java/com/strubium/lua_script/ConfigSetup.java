@@ -43,15 +43,15 @@ public class ConfigSetup {
         if (!tickFile.exists()) {
             try {
                 if (tickFile.createNewFile()) {
-                    LuaScript.LOGGER.info("File 'init.lua' created successfully at: " + tickFile.getAbsolutePath());
+                    LuaScript.LOGGER.info("File 'tick.lua' created successfully at: " + tickFile.getAbsolutePath());
                 } else {
-                    LuaScript.LOGGER.info("Failed to create file 'init.lua'.");
+                    LuaScript.LOGGER.info("Failed to create file 'tick.lua'.");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            LuaScript.LOGGER.info("File 'init.lua' already exists at: " + tickFile.getAbsolutePath());
+            LuaScript.LOGGER.info("File 'tick.lua' already exists at: " + tickFile.getAbsolutePath());
         }
     }
 
