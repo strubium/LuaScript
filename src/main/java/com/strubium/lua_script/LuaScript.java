@@ -4,15 +4,21 @@ import com.example.lua_script.Tags;
 import com.strubium.lua_script.lua.LuaEngine;
 import com.strubium.lua_script.lua.LuaManager;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
 
 @Mod(modid = Tags.MOD_ID, name = Tags.MOD_NAME, version = Tags.VERSION)
 public class LuaScript {
 
     public static LuaEngine luaEngine;
     public static LuaManager functionManager;
+    public static String modConfigDir;
 
     public static final Logger LOGGER = LogManager.getLogger(Tags.MOD_NAME);
 
@@ -23,10 +29,49 @@ public class LuaScript {
      */
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        LOGGER.info("Hello From {}!", Tags.MOD_NAME);
+
+        // Get the mod configuration directory
+        File configDir = event.getModConfigurationDirectory();
+        modConfigDir = String.valueOf(event.getModConfigurationDirectory());
+        LOGGER.info("Mod Config: " + modConfigDir);
+
+        // Define the folder and file path
+        File luaDir = new File(configDir, "lua");
+        File file = new File(luaDir, "init.lua");
+
+        // Create the lua directory if it doesn't exist
+        if (!luaDir.exists()) {
+            boolean dirsCreated = luaDir.mkdirs();  // mkdirs() creates the directory and any necessary parent directories
+            if (dirsCreated) {
+                System.out.println("Directory 'lua/' created successfully.");
+            } else {
+                System.out.println("Failed to create directory 'lua/'.");
+            }
+        }
+
+        // Check if the file exists, if not, create it
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    System.out.println("File 'init.lua' created successfully at: " + file.getAbsolutePath());
+                } else {
+                    System.out.println("Failed to create file 'init.lua'.");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("File 'init.lua' already exists at: " + file.getAbsolutePath());
+        }
+    }
+
+    @Mod.EventHandler
+    public void init(FMLPostInitializationEvent event) {
         luaEngine = new LuaEngine();
         functionManager = new LuaManager(luaEngine.getGlobals());
 
-        LOGGER.info("Hello From {}!", Tags.MOD_NAME);
-    }
 
+        LuaManager.loadScript("lua/init.lua");
+    }
 }

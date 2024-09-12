@@ -6,10 +6,14 @@ import com.strubium.lua_script.util.FileUtils;
 import org.luaj.vm2.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 
 import static com.strubium.lua_script.LuaScript.luaEngine;
+import static com.strubium.lua_script.LuaScript.modConfigDir;
 
 public class LuaManager {
     private final Globals globals;
@@ -26,7 +30,7 @@ public class LuaManager {
         globals.set("log", new LuaFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
-                LuaScript.LOGGER.info(arg.tojstring(),  Tags.MOD_NAME);
+                LuaScript.LOGGER.info(arg.tojstring());
                 return arg;
             }
         });
@@ -36,18 +40,6 @@ public class LuaManager {
             public LuaValue call(LuaValue arg) {
                 LuaScript.LOGGER.error(arg.tojstring(),  Tags.MOD_NAME);
                 return arg;
-            }
-        });
-
-        globals.set("add", new LuaFunction() {
-            @Override
-            public LuaValue call(LuaValue a, LuaValue b) {
-                if (a.isnumber() && b.isnumber()) {
-                    double sum = a.todouble() + b.todouble();
-                    return LuaValue.valueOf(sum);
-                } else {
-                    return LuaValue.NIL;
-                }
             }
         });
 
@@ -98,7 +90,7 @@ public class LuaManager {
         globals.set("getCurrentDateTime", new LuaFunction() {
             @Override
             public LuaValue call() {
-                return LuaValue.valueOf(java.time.LocalDateTime.now().toString());
+                return LuaValue.valueOf(LocalDateTime.now().toString());
             }
         });
 
@@ -216,7 +208,7 @@ public class LuaManager {
      * @param scriptPath the relative path to the Lua script file within the "resources/scripts/" directory
      */
     public static void loadScript(String scriptPath) {
-        loadScript(scriptPath,"resources/scripts/");
+        loadScript(scriptPath, modConfigDir);
     }
 
     /**
@@ -227,13 +219,19 @@ public class LuaManager {
      */
     public static void loadScript(String scriptPath, String relativePath) {
         try {
+            // Use Paths to properly handle file paths
+            Path scriptFile = Paths.get(relativePath, scriptPath);
+
             Globals globals = luaEngine.getGlobals();
-            String script = FileUtils.readFile(FileUtils.getCurrentWorkingDirectory(relativePath + scriptPath));  // Read the script content
-            LuaValue chunk = globals.load(script, scriptPath);  // Load the script from content
+            LuaScript.LOGGER.info("Loading a script at: " + scriptFile.toString());
+
+            // Ensure the file exists and load the content
+            String scriptContent = FileUtils.readFile(String.valueOf(scriptFile));  // Ensure proper encoding
+            LuaValue chunk = globals.load(scriptContent);  // Load the script from content
             chunk.call();  // Execute the script
-        } catch (FileNotFoundException e) {
-            LuaScript.LOGGER.error("Error loading Script! FileNotFound");
+
         } catch (Exception e) {
+            LuaScript.LOGGER.error("Error loading Lua script: " + e.getMessage(), e);
             e.printStackTrace();
         }
     }
