@@ -3,20 +3,15 @@ package com.strubium.lua_script.lua;
 import com.strubium.lua_script.Tags;
 import com.strubium.lua_script.LuaScript;
 import com.strubium.lua_script.util.FileUtils;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.luaj.vm2.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -276,7 +271,6 @@ public class LuaManager {
             Path scriptFile = Paths.get(relativePath, scriptPath);
 
             Globals globals = luaEngine.getGlobals();
-            LuaScript.LOGGER.info("Loading a script at: " + scriptFile.toString());
 
             // Ensure the file exists and load the content
             String scriptContent = FileUtils.readFile(String.valueOf(scriptFile));  // Ensure proper encoding
