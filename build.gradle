@@ -1,6 +1,3 @@
-/**
- * It is advised that you do not edit anything in the build.gradle; unless you are sure of what you are doing
- */
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.gradle.ext.Gradle
@@ -144,6 +141,7 @@ dependencies {
         testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
+
 }
 
 apply from: 'gradle/scripts/dependencies.gradle'
