@@ -18,6 +18,7 @@ public class LuaScript {
     public static LuaEngine luaEngine;
     public static LuaManager functionManager;
     public static String modConfigDir;
+    public static File configDir;
 
     public static final Logger LOGGER = LogManager.getLogger(Tags.MOD_NAME);
 
@@ -31,22 +32,13 @@ public class LuaScript {
         LOGGER.info("Hello From {}!", Tags.MOD_NAME);
 
         // Get the mod configuration directory
-        File configDir = event.getModConfigurationDirectory();
+        configDir = event.getModConfigurationDirectory();
         modConfigDir = String.valueOf(event.getModConfigurationDirectory());
 
-        // Define the folder and file path
-        File luaDir = new File(configDir, "lua");
-        File file = new File(luaDir, "init.lua");
+        Config.loadFolder();
 
-        // Create the lua directory if it doesn't exist
-        if (!luaDir.exists()) {
-            boolean dirsCreated = luaDir.mkdirs();  // mkdirs() creates the directory and any necessary parent directories
-            if (dirsCreated) {
-                LOGGER.info("Directory 'lua/' created successfully.");
-            } else {
-                LOGGER.info("Failed to create directory 'lua/'.");
-            }
-        }
+        // Define the folder and file path
+        File file = new File(Config.luaDir, "init.lua");
 
         // Check if the file exists, if not, create it
         if (!file.exists()) {
