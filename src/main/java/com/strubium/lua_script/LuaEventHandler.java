@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 public class LuaEventHandler {
 
     @SubscribeEvent
-    public void clientTick(TickEvent.ClientTickEvent event) {
+    public void clientTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             LuaManager.loadScript("lua/tick.lua");
         }
