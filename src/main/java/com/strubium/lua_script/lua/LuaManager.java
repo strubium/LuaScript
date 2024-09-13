@@ -2,9 +2,17 @@ package com.strubium.lua_script.lua;
 
 import com.strubium.lua_script.Tags;
 import com.strubium.lua_script.LuaScript;
+import com.strubium.lua_script.builders.BlockBuilder;
 import com.strubium.lua_script.util.FileUtils;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.MapColor;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -243,6 +251,29 @@ public class LuaManager {
                 return LuaValue.FALSE;
             }
         });
+
+
+        globals.set("createBlock", new LuaFunction() {
+            @Override
+            public LuaValue call(LuaValue name, LuaValue hardness, LuaValue resistance) {
+                String blockName = name.tojstring();
+                Block customBlock = new BlockBuilder(blockName).build();
+
+                // Register the block
+                GameRegistry.findRegistry(Block.class).register(customBlock);
+
+                // Create the item form of the block
+                Item blockItem = new ItemBlock(customBlock)
+                        .setRegistryName(blockName + "_item");
+
+                // Register the item form
+                GameRegistry.findRegistry(Item.class).register(blockItem);
+
+                return LuaValue.TRUE;
+            }
+        });
+
+
 
 
 
