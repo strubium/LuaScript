@@ -5,13 +5,17 @@ import com.strubium.lua_script.LuaScript;
 import com.strubium.lua_script.builders.BlockBuilder;
 import com.strubium.lua_script.util.FileUtils;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
@@ -269,14 +273,52 @@ public class LuaManager {
                 // Register the item form
                 GameRegistry.findRegistry(Item.class).register(blockItem);
 
+                ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(customBlock), 0, new ModelResourceLocation(customBlock.getRegistryName(), "inventory"));
+
                 return LuaValue.TRUE;
             }
         });
 
+        globals.set("createItem", new LuaFunction() {
+            @Override
+            public LuaValue call(LuaValue name, LuaValue itemProperties) {
+                String itemName = name.tojstring();
+                Item customItem = new Item()
+                        .setRegistryName(itemName);
 
+                // Apply additional item properties (if any are provided in itemProperties)
+                if (!itemProperties.isnil()) {
+                    applyItemProperties(customItem, itemProperties);
+                }
 
+                // Register the item
+                GameRegistry.findRegistry(Item.class).register(customItem);
 
+                // Set the custom model resource location for the item
+                ModelLoader.setCustomModelResourceLocation(
+                        customItem,
+                        0,
+                        new ModelResourceLocation(customItem.getRegistryName(), "inventory")
+                );
 
+                return LuaValue.TRUE;
+            }
+        });
+    }
+
+    private void applyItemProperties(Item item, LuaValue itemProperties) {
+        // Similar to the applyItemProperties method in createBlock
+        LuaValue maxStackSizeValue = itemProperties.get("maxStackSize");
+        if (!maxStackSizeValue.isnil()) {
+            try {
+                int maxStackSize = maxStackSizeValue.toint();
+                item.setMaxStackSize(maxStackSize);
+            } catch (Exception e) {
+                System.err.println("Invalid maxStackSize value: " + maxStackSizeValue);
+            }
+        }
+
+        // Add more properties as needed...
     }
 
 
