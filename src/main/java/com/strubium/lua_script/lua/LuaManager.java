@@ -314,8 +314,10 @@ public class LuaManager {
 
         globals.set("remapItemWithDataFixer", new LuaFunction() {
             @Override
-            public LuaValue call(LuaValue oldItemName, LuaValue newItemName) {
+            public LuaValue call(LuaValue oldItemName, LuaValue newItemName, LuaValue fixVersion) {
+
                 EntityPlayer player = Minecraft.getMinecraft().player;
+                int fixerVersion = fixVersion.toint();
                 if (player != null) {
                     IDataFixer dataFixer = Minecraft.getMinecraft().getDataFixer();
 
@@ -323,7 +325,7 @@ public class LuaManager {
                     IFixableData fixer = new IFixableData() {
                         @Override
                         public int getFixVersion() {
-                            return 922;  // Define a version for the fixer (arbitrary version number)
+                            return fixerVersion;  // Define a version for the fixer (arbitrary version number)
                         }
 
                         @Override
@@ -353,7 +355,7 @@ public class LuaManager {
                             stack.writeToNBT(nbt);
 
                             // Apply the data fixer to the NBT data
-                            NBTTagCompound fixedNbt = dataFixer.process(FixTypes.ITEM_INSTANCE, nbt, 922);  // Directly use the version number
+                            NBTTagCompound fixedNbt = dataFixer.process(FixTypes.ITEM_INSTANCE, nbt, fixerVersion);
 
                             // If NBT data was changed, update the item stack
                             if (!fixedNbt.equals(nbt)) {
@@ -363,7 +365,7 @@ public class LuaManager {
                         }
                     }
 
-                    return LuaValue.TRUE;  // Return true if successful
+                    return LuaValue.TRUE;  
                 }
                 return LuaValue.FALSE;
             }
