@@ -36,12 +36,12 @@ public class BlockBuilder {
     }
 
     public Block build() {
-        return new Block(Material.ROCK) {
+        return new Block(material) {
             @Override
             public float getExplosionResistance(Entity exploder) {
                 return resistance;
             }
-        }.setRegistryName(name);
+        }.setRegistryName(name).setHardness(hardness);
     }
 }
 

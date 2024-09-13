@@ -257,7 +257,7 @@ public class LuaManager {
             @Override
             public LuaValue call(LuaValue name, LuaValue hardness, LuaValue resistance) {
                 String blockName = name.tojstring();
-                Block customBlock = new BlockBuilder(blockName).build();
+                Block customBlock = new BlockBuilder(blockName).setHardness(hardness.tofloat()).setResistance(resistance.tofloat()).build();
 
                 // Register the block
                 GameRegistry.findRegistry(Block.class).register(customBlock);
