@@ -7,7 +7,7 @@ public class ConfigSetup {
     public static final File luaDir = new File(LuaScript.configDir, "lua");
     public static final File initFile = new File(ConfigSetup.luaDir, "init.lua");
     public static final File tickFile = new File(ConfigSetup.luaDir, "tick.lua");
-
+    public static final File fixupFile = new File(ConfigSetup.luaDir, "fixup.lua");
 
     public static void loadLuaFolder(){
         // Create the lua directory if it doesn't exist
@@ -52,6 +52,23 @@ public class ConfigSetup {
             }
         } else {
             LuaScript.LOGGER.info("File 'tick.lua' already exists at: " + tickFile.getAbsolutePath());
+        }
+    }
+
+    public static void loadFixup(){
+        // Check if the file exists, if not, create it
+        if (!fixupFile.exists()) {
+            try {
+                if (fixupFile.createNewFile()) {
+                    LuaScript.LOGGER.info("File 'fixup.lua' created successfully at: " + tickFile.getAbsolutePath());
+                } else {
+                    LuaScript.LOGGER.info("Failed to create file 'fixup.lua'.");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            LuaScript.LOGGER.info("File 'fixup.lua' already exists at: " + tickFile.getAbsolutePath());
         }
     }
 

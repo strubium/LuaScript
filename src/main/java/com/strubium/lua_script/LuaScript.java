@@ -36,6 +36,7 @@ public class LuaScript {
         ConfigSetup.loadLuaFolder();
         ConfigSetup.loadInit();
         ConfigSetup.loadTick();
+        ConfigSetup.loadFixup();
 
     }
 

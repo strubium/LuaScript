@@ -12,9 +12,16 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.util.datafix.IDataFixer;
+import net.minecraft.util.datafix.IDataWalker;
+import net.minecraft.util.datafix.IFixableData;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
@@ -268,7 +275,7 @@ public class LuaManager {
 
                 // Create the item form of the block
                 Item blockItem = new ItemBlock(customBlock)
-                        .setRegistryName(blockName + "_item");
+                        .setRegistryName(blockName);
 
                 // Register the item form
                 GameRegistry.findRegistry(Item.class).register(blockItem);
@@ -304,6 +311,64 @@ public class LuaManager {
                 return LuaValue.TRUE;
             }
         });
+
+        globals.set("remapItemWithDataFixer", new LuaFunction() {
+            @Override
+            public LuaValue call(LuaValue oldItemName, LuaValue newItemName) {
+                EntityPlayer player = Minecraft.getMinecraft().player;
+                if (player != null) {
+                    IDataFixer dataFixer = Minecraft.getMinecraft().getDataFixer();
+
+                    // Create the custom Fixer for item remapping
+                    IFixableData fixer = new IFixableData() {
+                        @Override
+                        public int getFixVersion() {
+                            return 922;  // Define a version for the fixer (arbitrary version number)
+                        }
+
+                        @Override
+                        public NBTTagCompound fixTagCompound(NBTTagCompound compound) {
+                            // Check if the old item is in the compound (NBT data)
+                            String itemId = compound.getString("id");
+
+                            if (itemId.equals(oldItemName.tojstring())) {
+                                // Change the old item ID to the new one
+                                compound.setString("id", newItemName.tojstring());
+                            }
+
+                            return compound;  // Return the modified NBT data
+                        }
+                    };
+
+                    // Register the fixer with the DataFixer
+                    ((net.minecraft.util.datafix.DataFixer) dataFixer).registerWalker(FixTypes.ITEM_INSTANCE, (IDataWalker) fixer);
+
+                    // Apply the data fixer to the player's inventory
+                    InventoryPlayer inventory = player.inventory;
+                    for (int i = 0; i < inventory.getSizeInventory(); i++) {
+                        ItemStack stack = inventory.getStackInSlot(i);
+                        if (stack != null && !stack.isEmpty()) {
+                            // Write the current item stack to NBT
+                            NBTTagCompound nbt = new NBTTagCompound();
+                            stack.writeToNBT(nbt);
+
+                            // Apply the data fixer to the NBT data
+                            NBTTagCompound fixedNbt = dataFixer.process(FixTypes.ITEM_INSTANCE, nbt, 922);  // Directly use the version number
+
+                            // If NBT data was changed, update the item stack
+                            if (!fixedNbt.equals(nbt)) {
+                                stack = new ItemStack(fixedNbt);  // Create a new ItemStack with the fixed NBT
+                                inventory.setInventorySlotContents(i, stack);  // Update the slot with the new ItemStack
+                            }
+                        }
+                    }
+
+                    return LuaValue.TRUE;  // Return true if successful
+                }
+                return LuaValue.FALSE;
+            }
+        });
+
     }
 
     private void applyItemProperties(Item item, LuaValue itemProperties) {
